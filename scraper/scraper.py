@@ -37,6 +37,15 @@ JOB_TYPE_MAP = {
     8: "彈性",
 }
 
+EXP_MAP = {
+    1: "不拘",
+    3: "1年以下",
+    4: "1–3年",
+    5: "3–5年",
+    6: "5–10年",
+    7: "10年以上",
+}
+
 
 def fetch_jobs(keyword, page):
     url = "https://www.104.com.tw/jobs/search/api/jobs"
@@ -76,7 +85,7 @@ def parse_job(job, keyword):
         "職務類別":     keyword,
         "工作地區":     job.get("jobAddrNoDesc", ""),
         "學歷要求":     edu,
-        "工作經驗":     "",           # 需進職缺頁面取得，後續補充
+        "工作經驗":     EXP_MAP.get(job.get("s9", [1])[0], "不拘") if job.get("s9") else "不拘",
         "公司規模":     job.get("employeeCount", 0),
         "產業類別":     job.get("coIndustryDesc", ""),
         "上班時間":     JOB_TYPE_MAP.get(job.get("jobType", 1), "日班"),
