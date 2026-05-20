@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薪資預測系統</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1a2332;
+            color: white;
+            height: 60px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: #2b7de9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        header h1 { font-size: 1.05rem; font-weight: 600; }
+        header p  { font-size: 0.78rem; color: #8899aa; margin-top: 2px; }
+
+        .main {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 32px auto;
+            padding: 0 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #1a2332;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Form */
+        .form-row { margin-bottom: 14px; }
+
+        .form-row label {
+            display: block;
+            font-size: 0.8rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-row .req { color: #e53e3e; margin-left: 2px; }
+
+        .form-row select,
+        .form-row input[type="number"] {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #d5d9e8;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            color: #333;
+            background: white;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .form-row select:focus,
+        .form-row input[type="number"]:focus {
+            border-color: #2b7de9;
+            box-shadow: 0 0 0 2px rgba(43,125,233,0.1);
+        }
+
+        #districtSelect {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .form-row .hint {
+            font-size: 0.72rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        .model-box {
+            background: #f4f8ff;
+            border: 1px solid #cce0ff;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .model-box label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #2b7de9;
+            margin-bottom: 6px;
+        }
+
+        .model-box select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #b3d4ff;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            background: white;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 11px;
+            background: #2b7de9;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-submit:hover  { background: #1a6dd8; }
+        .btn-submit:active { background: #1560c0; }
+
+        /* Result panel */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 260px;
+            color: #c0c8d8;
+            font-size: 0.88rem;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .result-body { display: none; }
+
+        .result-hero {
+            background: #1a2332;
+            border-radius: 8px;
+            padding: 32px 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 5px 24px;
+            border-radius: 20px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .result-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .result-sub {
+            font-size: 0.78rem;
+            color: #6b7f99;
+        }
+
+        .prob-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #444;
+        }
+
+        .prob-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .prob-label {
+            font-size: 0.8rem;
+            color: #555;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .prob-track {
+            flex: 1;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .prob-pct {
+            font-size: 0.8rem;
+            color: #666;
+            width: 36px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 780px) {
+            .main { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="20" x2="12" y2="10"/>
+            <line x1="18" y1="20" x2="18" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="16"/>
+        </svg>
+    </div>
+    <div>
+        <h1>薪資預測系統</h1>
+        <p>Taiwan Job Market Analysis</p>
+    </div>
+</header>
+
+<div class="main">
+
+    <!-- 左側：輸入表單 -->
+    <div class="card">
+        <div class="card-title">職缺資訊輸入</div>
+        <form id="predictForm">
+
+            <div class="form-row">
+                <label>職務類別 <span class="req">*</span></label>
+                <select name="職務類別" required>
+                    <option value="">請選擇職務類別</option>
+                    {% for t in job_types %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>工作地區 <span class="req">*</span></label>
+                <select id="citySelect" required>
+                    <option value="">請選擇縣市</option>
+                    {% for city in taiwan_areas %}
+                    <option value="{{ city }}">{{ city }}</option>
+                    {% endfor %}
+                </select>
+                <select id="districtSelect">
+                    <option value="">請選擇行政區</option>
+                </select>
+                <input type="hidden" name="工作地區" id="areaValue">
+            </div>
+
+            <div class="form-row">
+                <label>產業類別 <span class="req">*</span></label>
+                <select id="industryGroupSelect" required>
+                    <option value="">請選擇產業大類</option>
+                    {% for group in industry_groups %}
+                    <option value="{{ group }}">{{ group }}</option>
+                    {% endfor %}
+                </select>
+                <select id="industrySelect" style="display:none; margin-top:8px;">
+                    <option value="">請選擇細項產業</option>
+                </select>
+                <input type="hidden" name="產業類別" id="industryValue">
+            </div>
+
+            <div class="form-row">
+                <label>學歷要求 <span class="req">*</span></label>
+                <select name="學歷要求" required>
+                    <option value="">請選擇學歷要求</option>
+                    {% for e in edu_levels %}
+                    <option value="{{ e }}">{{ e }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>公司規模員工人數 <span class="req">*</span></label>
+                <input type="number" name="公司規模" placeholder="例如：100" min="1" required>
+                <div class="hint">請輸入公司員工總人數</div>
+            </div>
+
+            <div class="form-row">
+                <label>需求技能數量 <span class="req">*</span></label>
+                <input type="number" name="需求技能數量" placeholder="0 - 20" min="0" max="20" required>
+                <div class="hint">職缺要求的技能數量 (0-20)</div>
+            </div>
+
+            <div class="model-box">
+                <label>預測模型選擇</label>
+                <select name="model">
+                    <option value="random_forest">Random Forest（推薦）</option>
+                    <option value="decision_tree">Decision Tree</option>
+                    <option value="logistic_regression">Logistic Regression</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">開始預測</button>
+        </form>
+    </div>
+
+    <!-- 右側：預測結果 -->
+    <div class="card">
+        <div class="card-title">預測結果</div>
+
+        <div class="empty-state" id="emptyState">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>請填寫左側表單並點擊「開始預測」</span>
+        </div>
+
+        <div class="result-body" id="resultBody">
+            <div class="result-hero">
+                <div class="result-badge" id="resultBadge"></div>
+                <div class="result-amount" id="resultAmount"></div>
+                <div class="result-sub">預估月薪範圍</div>
+            </div>
+
+            <div class="prob-title">各級距預測機率</div>
+
+            <div class="prob-row">
+                <span class="prob-label">低薪（&lt; NT$40,000）</span>
+                <div class="prob-track">
+                    <div class="prob-fill" id="bar0" style="background:#f87171"></div>
+                </div>
+                <span class="prob-pct" id="pct0">-</span>
+            </div>
+            <div class="prob-row">
+                <span class="prob-label">中薪（NT$40,000 - 55,000）</span>
+                <div class="prob-track">
+                    <div class="prob-fill" id="bar1" style="background:#fbbf24"></div>
+                </div>
+                <span class="prob-pct" id="pct1">-</span>
+            </div>
+            <div class="prob-row">
+                <span class="prob-label">高薪（&gt; NT$55,000）</span>
+                <div class="prob-track">
+                    <div class="prob-fill" id="bar2" style="background:#34d399"></div>
+                </div>
+                <span class="prob-pct" id="pct2">-</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const TAIWAN_AREAS    = {{ taiwan_areas | tojson }};
+    const INDUSTRY_GROUPS = {{ industry_groups | tojson }};
+
+    const industryGroupSelect = document.getElementById("industryGroupSelect");
+    const industrySelect      = document.getElementById("industrySelect");
+    const industryValue       = document.getElementById("industryValue");
+
+    industryGroupSelect.addEventListener("change", function() {
+        const group = this.value;
+        industrySelect.innerHTML = '<option value="">請選擇細項產業</option>';
+        industryValue.value = "";
+
+        const items = INDUSTRY_GROUPS[group];
+        if (items && items.length > 0) {
+            items.forEach(d => industrySelect.appendChild(new Option(d.label, d.value)));
+            industrySelect.style.display = "block";
+        } else {
+            industrySelect.style.display = "none";
+        }
+    });
+
+    industrySelect.addEventListener("change", function() {
+        if (this.value) industryValue.value = this.value;
+    });
+
+    const citySelect     = document.getElementById("citySelect");
+    const districtSelect = document.getElementById("districtSelect");
+    const areaValue      = document.getElementById("areaValue");
+
+    citySelect.addEventListener("change", function() {
+        const city = this.value;
+        areaValue.value = city;
+
+        districtSelect.innerHTML = '<option value="">請選擇行政區</option>';
+        const districts = TAIWAN_AREAS[city];
+
+        if (districts && districts.length > 0) {
+            districts.forEach(d => districtSelect.appendChild(new Option(d.label, d.value)));
+            districtSelect.style.display = "block";
+        } else {
+            districtSelect.style.display = "none";
+        }
+    });
+
+    districtSelect.addEventListener("change", function() {
+        if (this.value) areaValue.value = this.value;
+    });
+
+    const BADGE_COLORS = { 0: "#f87171", 1: "#fbbf24", 2: "#34d399" };
+    const SALARY_RANGES = {
+        0: "NT$ 40,000 以下",
+        1: "NT$ 40,000 - 55,000",
+        2: "NT$ 55,000 以上"
+    };
+
+    document.getElementById("predictForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(this).entries());
+
+        let result;
+        try {
+            const res = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            result = await res.json();
+        } catch {
+            alert("連線失敗，請確認伺服器是否正常運行。");
+            return;
+        }
+
+        if (result.error) {
+            alert("預測失敗：" + result.error);
+            return;
+        }
+
+        const pred = result.prediction;
+        document.getElementById("emptyState").style.display = "none";
+        document.getElementById("resultBody").style.display = "block";
+
+        const badge = document.getElementById("resultBadge");
+        badge.textContent = result.label;
+        badge.style.background = BADGE_COLORS[pred];
+        badge.style.color = pred === 1 ? "#333" : "white";
+
+        document.getElementById("resultAmount").textContent = SALARY_RANGES[pred];
+
+        const probs = result.probabilities;
+        [["低薪", 0], ["中薪", 1], ["高薪", 2]].forEach(([key, i]) => {
+            document.getElementById("bar" + i).style.width = probs[key] + "%";
+            document.getElementById("pct" + i).textContent = probs[key] + "%";
+        });
+    });
+</script>
+
+</body>
+</html>
