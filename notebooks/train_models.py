@@ -14,6 +14,7 @@ from sklearn.metrics import (
     f1_score, roc_auc_score, confusion_matrix, roc_curve, auc
 )
 from sklearn.preprocessing import label_binarize
+import joblib
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -197,3 +198,15 @@ summary.to_csv("results/model_results.csv", encoding="utf-8-sig")
 print(f"\n結果表格已儲存到 results/model_results.csv")
 print(f"\n{'='*50}")
 print(summary.to_string())
+
+# ── 儲存模型 ──────────────────────────────────────────────────────────────────
+os.makedirs("models", exist_ok=True)
+model_filenames = {
+    "Decision Tree":      "models/decision_tree.pkl",
+    "Random Forest":      "models/random_forest.pkl",
+    "Logistic Regression":"models/logistic_regression.pkl",
+}
+for name, model in models.items():
+    model.fit(X, y)
+    joblib.dump(model, model_filenames[name])
+    print(f"{name} 已儲存到 {model_filenames[name]}")
