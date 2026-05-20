@@ -16,12 +16,13 @@
 ```
 ml-salary-prediction/
 ├── data/
-│   ├── raw/              # 爬蟲直接輸出的原始資料（負責人：組員 A）
-│   └── processed/        # 前處理後的乾淨資料（負責人：組員 B）
-├── scraper/              # 爬蟲程式碼（負責人：組員 A）
-├── models/               # WEKA 模型檔與訓練結果（負責人：組員 B）
-├── notebooks/            # 資料分析、視覺化 Jupyter Notebook（負責人：組員 B）
-├── website/              # 互動式預測網站（負責人：組員 C）
+│   ├── raw/              # 爬蟲直接輸出的原始資料（負責人：楊忠諭）
+│   └── processed/        # 前處理後的乾淨資料（負責人：蔡東廷）
+├── scraper/              # 爬蟲程式碼（負責人：楊忠諭）
+├── models/               # 訓練好的模型與編碼器 .pkl 檔（負責人：蔡東廷）
+├── notebooks/            # 資料前處理與模型訓練腳本（負責人：蔡東廷）
+├── results/              # 評估指標與圖表輸出
+├── website/              # 互動式預測網站（負責人：謝傑安）
 ├── requirements.txt      # Python 套件清單
 └── README.md
 ```
@@ -32,9 +33,9 @@ ml-salary-prediction/
 
 | 組員 | 負責範疇 | 對應資料夾 |
 |------|----------|------------|
-| 組員 A（請填入姓名） | 爬蟲撰寫、資料收集、原始資料整理 | `scraper/`、`data/raw/` |
-| 組員 B（請填入姓名） | 資料前處理、特徵工程、模型訓練與評估 | `data/processed/`、`models/`、`notebooks/` |
-| 組員 C（請填入姓名） | 互動式網站開發、視覺化圖表、PPT 製作 | `website/` |
+| 楊忠諭 | 爬蟲撰寫、資料收集、原始資料整理 | `scraper/`、`data/raw/` |
+| 蔡東廷 | 資料前處理、特徵工程、模型訓練與評估 | `data/processed/`、`models/`、`notebooks/` |
+| 謝傑安 | 互動式網站開發、視覺化圖表、PPT 製作 | `website/` |
 
 ---
 
@@ -42,35 +43,17 @@ ml-salary-prediction/
 
 | 分支名稱 | 用途 | 負責人 |
 |----------|------|--------|
-| `main` | 穩定版本，只接受 Pull Request 合併 | 全員 |
-| `feature/scraper` | 爬蟲開發 | 組員 A |
-| `feature/preprocessing` | 資料前處理與特徵工程 | 組員 B |
-| `feature/website` | 網站介面開發 | 組員 C |
-
-### 工作流程
-
-```
-# 1. 切換到自己的分支
-git checkout feature/scraper   # 各自換成自己的分支名稱
-
-# 2. 開發完一個功能後 commit
-git add .
-git commit -m "功能描述"
-
-# 3. push 到遠端
-git push origin feature/scraper
-
-# 4. 到 GitHub 開 Pull Request，通知其他組員 review 後合併到 main
-```
-
-> **注意**：請勿直接 push 到 `main`，一律透過 Pull Request 合併。
+| `main` | 穩定版本 | 全員 |
+| `feature/scraper` | 爬蟲開發 | 楊忠諭 |
+| `feature/preprocessing` | 資料前處理與特徵工程 | 蔡東廷 |
+| `feature/website` | 網站介面開發 | 謝傑安 |
 
 ---
 
 ## 環境安裝
 
 ```bash
-git clone https://github.com/github帳號/ml-salary-prediction.git
+git clone https://github.com/Tonylemty/ml-salary-prediction.git
 cd ml-salary-prediction
 python -m venv venv
 
@@ -83,23 +66,31 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## 啟動網站
+
+```bash
+python website/app.py
+```
+
+瀏覽器開啟 `http://127.0.0.1:5000`
+
 ---
 
 ## 薪資分類標準
 
 | 等級 | 月薪範圍（TWD） |
 |------|----------------|
-| 低薪 | < 30,000 元 |
-| 中薪 | 30,000 – 50,000 元 |
-| 高薪 | > 50,000 元 |
+| 低薪 | < 40,000 元 |
+| 中薪 | 40,000 – 55,000 元 |
+| 高薪 | > 55,000 元 |
 
 ---
 
 ## 使用模型
 
-- Decision Tree（J48）
-- Random Forest
-- Logistic Regression
+- Decision Tree（scikit-learn DecisionTreeClassifier）
+- Random Forest（scikit-learn RandomForestClassifier）
+- Logistic Regression（scikit-learn LogisticRegression）
 
 ---
 
