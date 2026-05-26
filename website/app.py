@@ -34,6 +34,8 @@ EDU_ORDER = {"不拘": 0, "高中以下": 1, "高中職": 2, "專科": 3, "大�
 SALARY_LABELS = {0: "低薪", 1: "中薪", 2: "高薪"}
 SALARY_RANGES = {0: "NT$ 40,000 以下", 1: "NT$ 40,000 - 55,000", 2: "NT$ 55,000 以上"}
 
+FEATURES = ["工作地區", "公司規模", "產業類別", "職務類別", "需求技能數量", "學歷要求"]
+
 # 產業大類順序（對應圖表）與關鍵字對應（先比對到的優先）
 INDUSTRY_MAPPING = [
     ("電子資訊／軟體／半導體相關業",  ["電腦", "軟體", "半導體", "積體電路", "光電", "晶圓", "網路", "資訊", "通訊"]),
@@ -165,6 +167,20 @@ def predict():
         pred  = int(model.predict(features)[0])
         proba = model.predict_proba(features)[0].tolist()
 
+        # 計算各模型的特徵重要性
+        if hasattr(model, "feature_importances_"):
+            importances = model.feature_importances_
+        else:
+            # Logistic Regression：取各類別係數絕對值的平均，再正規化
+            importances = np.abs(model.coef_).mean(axis=0)
+            importances = importances / importances.sum()
+
+        feat_importance = [
+            {"label": FEATURES[i], "pct": round(float(importances[i]) * 100, 1)}
+            for i in range(len(FEATURES))
+        ]
+        feat_importance.sort(key=lambda x: x["pct"], reverse=True)
+
         return jsonify({
             "prediction": pred,
             "label": SALARY_LABELS[pred],
@@ -174,6 +190,7 @@ def predict():
                 "中薪": round(proba[1] * 100, 1),
                 "高薪": round(proba[2] * 100, 1),
             },
+            "feature_importance": feat_importance,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400

@@ -516,15 +516,6 @@
         if (this.value) areaValue.value = this.value;
     });
 
-    const FEATURE_IMPORTANCE = [
-        { label: "工作地區",   pct: 25.0 },
-        { label: "公司規模",   pct: 20.6 },
-        { label: "產業類別",   pct: 20.1 },
-        { label: "職務類別",   pct: 16.5 },
-        { label: "需求技能數量", pct: 10.2 },
-        { label: "學歷要求",   pct:  5.4 },
-    ];
-
     const BADGE_COLORS = { 0: "#f87171", 1: "#fbbf24", 2: "#34d399" };
     const SALARY_RANGES = {
         0: "NT$ 40,000 以下",
@@ -574,14 +565,15 @@
             document.getElementById("pct" + i).textContent = probs[key] + "%";
         });
 
-        // 重置並動態呈現 Feature Importance
-        FEATURE_IMPORTANCE.forEach((feat, i) => {
+        // 動態呈現 Feature Importance（依模型不同而變化）
+        const fi = result.feature_importance;
+        fi.forEach((feat, i) => {
             document.getElementById("feat-bar-" + i).style.width = "0%";
             document.getElementById("feat-pct-" + i).textContent = "-";
             const labelEl = document.getElementById("feat-label-" + i);
             labelEl.innerHTML = feat.label + (i === 0 ? '<span class="top-tag">最大影響</span>' : "");
         });
-        FEATURE_IMPORTANCE.forEach((feat, i) => {
+        fi.forEach((feat, i) => {
             setTimeout(() => {
                 document.getElementById("feat-bar-" + i).style.width = feat.pct + "%";
                 document.getElementById("feat-pct-" + i).textContent = feat.pct + "%";
