@@ -127,7 +127,7 @@ for (name, res), color in zip(results.items(), colors):
     mean_tpr /= 3
     mean_auc = auc(all_fpr, mean_tpr)
     ax.plot(all_fpr, mean_tpr, color=color, lw=2,
-            label=f"{name} (AUC = {mean_auc:.3f})")
+        label=f"{name}")
 
 ax.plot([0, 1], [0, 1], "k--", lw=1)
 ax.set(xlim=[0, 1], ylim=[0, 1.05],
